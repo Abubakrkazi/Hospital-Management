@@ -1,3 +1,5 @@
+
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { authClient } from "@/lib/auth-client";
 import { getUsers } from "@/lib/api"; // Ensure these exist
@@ -19,10 +21,13 @@ export default function HMSDashboard() {
   const navigate = useNavigate();
   const user = session?.user;
 
-  if (user?.role === "patient") {
-    navigate(`/profile/${session?.user.id}`); // 👈 Redirect user after login
+useEffect(() => {
+  if (user?.role === "patient" && session?.user?.id) {
+    navigate(`/profile/${session.user.id}`, {
+      replace: true,
+    });
   }
-
+}, [user, session, navigate]);
   // Fetch users for StatsCards calculation
   const { data: userData, isLoading: isDataLoading } = useQuery({
     queryKey: ["patients"],

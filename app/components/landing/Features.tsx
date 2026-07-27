@@ -1,9 +1,4 @@
-import {
-  UserRound,
-  Stethoscope,
-  CalendarCheck,
-  ShieldCheck,
-} from "lucide-react";
+import { FEATURES } from "@/constants/features";
 
 import {
   Card,
@@ -11,36 +6,9 @@ import {
   SectionHeading,
 } from "../common";
 
-const features = [
-  {
-    icon: UserRound,
-    title: "Smart Patient Management",
-    description:
-      "Manage patient profiles, medical history and healthcare records securely.",
-  },
-  {
-    icon: Stethoscope,
-    title: "Doctor Management",
-    description:
-      "Connect doctors with patients and manage healthcare operations easily.",
-  },
-  {
-    icon: CalendarCheck,
-    title: "Appointment System",
-    description:
-      "Schedule appointments and reduce waiting time with smart automation.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Secure Medical Data",
-    description:
-      "Protect sensitive healthcare information with secure data management.",
-  },
-];
-
 export default function Features() {
   return (
-    <section className="bg-gray-50 py-24">
+    <section className="bg-background py-24">
       <Container>
         <SectionHeading
           badge="Our Features"
@@ -48,27 +16,33 @@ export default function Features() {
           description="A complete AI-powered healthcare solution to improve hospital management and patient experience."
         />
 
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {features.map((feature) => {
+        <div className="mt-16 grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+          {FEATURES.map((feature) => {
             const Icon = feature.icon;
 
             return (
               <Card
                 key={feature.title}
                 hover
-                className="group"
+                className="group rounded-2xl border border-border/60 bg-background/70 p-8 backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:border-primary/40 hover:shadow-xl"
               >
-                <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-blue-100 text-blue-600 transition group-hover:bg-blue-600 group-hover:text-white">
-                  <Icon size={28} />
+                <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground">
+                  <Icon className="h-7 w-7" />
                 </div>
 
-                <h3 className="mb-3 text-xl font-bold text-slate-900">
+                <h3 className="text-xl font-semibold tracking-tight">
                   {feature.title}
                 </h3>
 
-                <p className="leading-relaxed text-slate-600">
+                <p className="mt-4 leading-7 text-muted-foreground">
                   {feature.description}
                 </p>
+
+                <button
+                  className="mt-6 inline-flex items-center text-sm font-medium text-primary transition-all duration-300 group-hover:translate-x-1"
+                >
+                  Learn More →
+                </button>
               </Card>
             );
           })}

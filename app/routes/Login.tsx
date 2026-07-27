@@ -1,18 +1,33 @@
+import { useNavigate } from "react-router";
 import type { Route } from "../+types/root";
-import { Activity, Lock, Mail, ChevronRight, AlertCircle } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
+import { useState } from "react";
+import { Link } from "react-router";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+
+import {
+  Activity,
+  AlertCircle,
+  ChevronRight,
+  Lock,
+  Mail,
+} from "lucide-react";
+
+
 import { CustomInput } from "@/components/global/CustomInput";
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
-import { useForm } from "react-hook-form";
-import { useState } from "react";
-import z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
-import { authClient } from "@/lib/auth-client";
-import { useNavigate, Navigate } from "react-router"; // Import this to redirect
-import { loginSchema } from "@/components/auth/login.schema";
-import Loader from "@/components/global/Loader";
+
+import {
+  loginSchema,
+  type LoginFormData,
+} from "@/components/auth/login.schema";
+
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -21,56 +36,90 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-type LoginFormValues = z.infer<typeof loginSchema>;
 
 const Login = () => {
   const [globalError, setGlobalError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate(); // Hook for redirection
-  const { data: session, isPending } = authClient.useSession();
+  // const { data: session, isPending } = authClient.useSession();
 
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "", rememberMe: false },
-  });
+const form = useForm<LoginFormData>({
+  resolver: zodResolver(loginSchema) as any,
+  defaultValues: {
+    email: "",
+    password: "",
+    rememberMe: false,
+  },
+});
 
-  if (isPending) {
-    return (
-      <div className="min-h-screen flex justify-center items-center">
-        <Loader label="Loading..." />
-      </div>
-    );
-  }
+
+
+
+
+
+
+const onSubmit = async (data: LoginFormData) => {
+  setGlobalError("");
+  setIsLoading(true);
+
+  await authClient.signIn.email(
+    {
+      email: data.email,
+      password: data.password,
+      rememberMe: data.rememberMe,
+    },
+    {
+      onSuccess: () => {
+        toast.success("Login Successful!");
+        navigate("/dashboard");
+      },
+
+      onError: (ctx) => {
+        setGlobalError(ctx.error.message);
+      },
+    }
+  );
+
+  setIsLoading(false);
+};
+
+  // if (isPending) {
+  //   return (
+  //     <div className="min-h-screen flex justify-center items-center">
+  //       <Loader label="Loading..." />
+  //     </div>
+  //   );
+  // }
 
   // Redirect if logged in
-  if (session) {
-    return <Navigate to="/dashboard" replace />;
-  }
+  // if (session) {
+  //   return <Navigate to="/dashboard" replace />;
+  // }
 
-  const onSubmit = async (data: LoginFormValues) => {
-    setGlobalError("");
-    setIsLoading(true);
-    await authClient.signIn.email(
-      {
-        email: data.email,
-        password: data.password,
-        rememberMe: data.rememberMe,
-      },
-      {
-        // Optional: Callbacks for cleaner logic
-        onSuccess: () => {
-          // we need to fix toast as it was not showing
-          toast.success("Login Successful!");
-          navigate("/dashboard"); // 👈 Redirect user after login
-        },
-        onError: (ctx) => {
-          // ctx.error.message contains the server response (e.g. "Invalid password")
-          setGlobalError(ctx.error.message);
-        },
-      },
-    );
-    setIsLoading(false);
-  };
+  // const onSubmit = async (data: LoginFormData) => {
+  //   setGlobalError("");
+  //   setIsLoading(true);
+  //   await authClient.signIn.email(
+  //     {
+  //       email: data.email,
+  //       password: data.password,
+  //       rememberMe: data.rememberMe,
+  //     },
+  //     {
+  //       // Optional: Callbacks for cleaner logic
+  //       onSuccess: () => {
+  //         // we need to fix toast as it was not showing
+  //         toast.success("Login Successful!");
+  //         navigate("/dashboard"); // 👈 Redirect user after login
+  //       },
+  //       onError: (ctx) => {
+  //         // ctx.error.message contains the server response (e.g. "Invalid password")
+  //         setGlobalError(ctx.error.message);
+  //       },
+  //     },
+  //   );
+  //   setIsLoading(false);
+  // };
   // console.log(form.formState.errors);
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors">
@@ -130,12 +179,14 @@ const Login = () => {
                   Keep me signed in
                 </label>
               </div>
-              <button
-                type="button"
+              
+              <Link
+                to="/forgot-password"
                 className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
               >
-                Forgot?
-              </button>
+                Forgot Password?
+              </Link>
+
             </div>
             <Button
               type="submit"

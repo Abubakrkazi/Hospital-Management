@@ -11,25 +11,23 @@ import Header from "@/components/navigation/Header";
 
 const Layout = () => {
   const { data: session, isPending } = authClient.useSession();
+
   const { pathname } = useLocation();
   const navigate = useNavigate();
+
   const userRole = (session?.user?.role as Role) || "patient";
 
   useEffect(() => {
     if (isPending) return;
 
-    // 2. Find configuration for current path
-    // We combine all arrays to search through everything
     const allNavItems = [...navConfig.navMain];
     const currentRouteConfig = getRouteConfig(pathname, allNavItems);
 
-    // 3. Check Permissions
     if (currentRouteConfig) {
       const hasAccess = currentRouteConfig.allowedRoles.includes(userRole);
 
       if (!hasAccess) {
         toast.error("Unauthorized Access");
-        // Redirect to a safe page based on role, or just dashboard
         navigate("/dashboard", { replace: true });
       }
     }
@@ -38,7 +36,7 @@ const Layout = () => {
   if (isPending) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader label="Initializing Medflolw..." />
+        <Loader label="Loading..." />
       </div>
     );
   }
@@ -46,6 +44,7 @@ const Layout = () => {
   if (!session) {
     return <Navigate to="/login" replace />;
   }
+
   return (
     <SidebarProvider>
       <AppSidebar />
